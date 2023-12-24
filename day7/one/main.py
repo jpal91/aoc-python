@@ -43,13 +43,14 @@ def parse(p: str) -> list:
     return [line.split() for line in p]
 
 if __name__ == '__main__':
-    with open('day7/one/puzzle.txt') as f:
-        puzzle = parse(f.read())
+    # with open('day7/one/puzzle.txt') as f:
+    #     puzzle = parse(f.read())
 
-    # puzzle = parse(puzzle_test)
+    puzzle = parse(puzzle_test)
     
     hands = [get_hand(p) for p in puzzle]
     sorted_hand = sort_hand(hands)
+    print(hands)
     
     total = 0
 
