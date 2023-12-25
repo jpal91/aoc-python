@@ -1,6 +1,6 @@
 
 def get_last_col(nums: list[int]) -> list[int]:
-    last_col = [nums[-1]]
+    first_col = [nums[0]]
     next_row = nums
 
     while True:
@@ -9,15 +9,15 @@ def get_last_col(nums: list[int]) -> list[int]:
         for i in range(1, len(next_row)):
             tmp.append(next_row[i] - next_row[i - 1])
         
-        last_col.append(tmp[-1])
+        first_col.append(tmp[0])
 
         if not any(tmp):
             break
         else:
             next_row = tmp
     
-    # print(last_col[::-1])
-    return last_col[::-1]
+    # print(first_col[::-1])
+    return first_col[::-1]
 
 def get_final_num(nums: list[int]) -> int:
     final_num = []
@@ -27,7 +27,7 @@ def get_final_num(nums: list[int]) -> int:
             final_num.append(0)
             continue
         else:
-            final_num.append(n + final_num[-1])
+            final_num.append(n - final_num[-1])
     
     # print(final_num)
     return final_num[-1]
