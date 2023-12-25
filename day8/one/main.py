@@ -1,5 +1,4 @@
 import re
-from functools import lru_cache
 
 puzzle_test1 = """\
 RLR
