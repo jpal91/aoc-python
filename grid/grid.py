@@ -36,6 +36,11 @@ class Cell:
     @neighbors.setter
     def neighbors(self, n_list: list["Cell"]) -> None:
         self._neighbors = n_list
+    
+    def copy(self) -> "Cell":
+        cell = Cell(self.value, self.y, self.x)
+        cell._neighbors = self._neighbors
+        return cell
 
 
 class Grid(list):
