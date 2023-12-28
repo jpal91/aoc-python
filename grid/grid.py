@@ -130,9 +130,9 @@ class Grid(list):
         return n_list
 
     @classmethod
-    def from_str(cls, grid: str, type_hint: Any = str) -> "Grid":
+    def from_str(cls, grid: str, type_hint: Any = str, **kwargs) -> "Grid":
         grid: list[list[str]] = [list(map(type_hint, [*col])) for col in grid.strip().split("\n")]
-        return cls(grid)
+        return cls(grid, **kwargs)
 
 # @dataclass
 # class LinkedCell:
