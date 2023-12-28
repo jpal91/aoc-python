@@ -131,7 +131,7 @@ class Grid(list):
 
     @classmethod
     def from_str(cls, grid: str, type_hint: Any = str) -> "Grid":
-        grid = [list(map(type_hint, col.split())) for col in grid.strip().split("\n")]
+        grid: list[list[str]] = [list(map(type_hint, [*col])) for col in grid.strip().split("\n")]
         return cls(grid)
 
 # @dataclass
