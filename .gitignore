@@ -7,3 +7,4 @@ dist/
 *.txt
 *.ans
 *.ipynb
+**/_main.py

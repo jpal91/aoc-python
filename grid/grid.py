@@ -20,6 +20,12 @@ class Cell:
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.value}, {self.y}, {self.x})"
+    
+    def __lt__(self, other):
+        return self.value < other.value
+    
+    # def __eq__(self, other):
+    #     return self.value == other.value
 
     @property
     def coords(self) -> tuple[int, int]:
