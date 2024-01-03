@@ -56,13 +56,12 @@ class Grid(list):
         size: int = None,
         cell: Cell = Cell,
         n_size: int = 4,
+        default_val: int | str = '.'
     ) -> None:
         if not issubclass(cell, Cell):
             raise TypeError
 
         if grid:
-            self.rows = len(grid)
-            self.cols = len(grid[0])
             super().__init__(
                 [
                     [
@@ -76,12 +75,12 @@ class Grid(list):
             )
         elif size:
             super().__init__(
-                [[cell(y=r, x=c) for c in range(size)] for r in range(size)]
+                [[cell(default_val, y=r, x=c) for c in range(size)] for r in range(size)]
             )
-            self.rows, self.cols = size, size
 
         self.y = 0
         self.x = 0
+        self.n_size = n_size
 
         for cell in self:
             cell.neighbors = [
@@ -118,6 +117,30 @@ class Grid(list):
             return any([key in row for row in self])
         y, x = key
         return y >= 0 and y < self.rows and x >= 0 and x < self.cols
+    
+    @property
+    def rows(self) -> int:
+        return len(self)
+    
+    @property
+    def cols(self) -> int:
+        return len(self[0])
+
+    @property
+    def first_row(self) -> list[Cell]:
+        return self[0]
+    
+    @property
+    def last_row(self) -> list[Cell]:
+        return self[self.rows - 1]
+    
+    @property
+    def first_col(self) -> list[Cell]:
+        return [self[i][self.cols - 1] for i in range(self.rows)]
+    
+    @property
+    def last_col(self) -> list[Cell]:
+        return [self[i][self.cols - 1] for i in range(self.rows)]
 
     def enum(self) -> Generator[tuple[int, int, Cell], None, None]:
         for y in range(self.rows):
@@ -139,6 +162,29 @@ class Grid(list):
                 n_list.append((new_row, new_col))
 
         return n_list
+    
+    def add_row(self, cell: Cell = Cell, default: str | int = '.') -> None:
+        self.append([cell(default, y = self.rows, x = i) for i in range(self.cols)])
+        for r in range(self.rows - 2, self.rows):
+            for c in range(self.cols):
+                cell = self[r][c]
+                cell.neighbors = [
+                    self[n[0]][n[1]] if n else None
+                    for n in self.neighbors(cell, self.n_size)
+                ]
+    
+    def add_col(self, cell: Cell = Cell, default: str | int = '.') -> None:
+        last_idx = self.cols
+        for r in range(self.rows):
+            self[r].append(cell(default, y = r, x = last_idx))
+        
+        for r in range(self.rows):
+            cell = self[r][-1]
+            cell.neighbors = [
+                self[n[0]][n[1]] if n else None
+                for n in self.neighbors(cell, self.n_size)
+            ]
+            
 
     @classmethod
     def from_str(cls, grid: str, type_hint: Any = str, **kwargs) -> "Grid":
