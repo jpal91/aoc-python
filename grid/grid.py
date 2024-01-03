@@ -56,7 +56,9 @@ class Grid(list):
         size: int = None,
         cell: Cell = Cell,
         n_size: int = 4,
-        default_val: int | str = '.'
+        default_val: int | str = '.',
+        y: int = None,
+        x: int = None,
     ) -> None:
         if not issubclass(cell, Cell):
             raise TypeError
@@ -68,14 +70,14 @@ class Grid(list):
                         cell(grid[r][c], y=r, x=c)
                         if not isinstance(grid[r][c], Cell)
                         else grid[r][c]
-                        for c in range(self.cols)
+                        for c in range(len(grid[0]))
                     ]
-                    for r in range(self.rows)
+                    for r in range(len(grid))
                 ]
             )
-        elif size:
+        elif size or (y and x):
             super().__init__(
-                [[cell(default_val, y=r, x=c) for c in range(size)] for r in range(size)]
+                [[cell(default_val, y=r, x=c) for c in range(x if x else size)] for r in range(y if y else size)]
             )
 
         self.y = 0
