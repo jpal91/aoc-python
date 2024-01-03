@@ -1,4 +1,4 @@
-
+import math
 from enum import Enum, IntEnum
 from collections import defaultdict, deque
 
@@ -43,17 +43,48 @@ class Conjunction(Module):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.memory: dict[Module, int] = defaultdict(int)
+        # self.memory: dict[Module, int] = defaultdict(int)
+        self.memory: list[Module] = []
 
     def toggle(self, mod: Module) -> bool:
-        self.memory[mod] = mod.pulse
 
-        if all([m for m in self.memory.values()]):
+        if all([m.pulse for m in self.memory]):
             self._pulse = Pulse.LOW
         else:
             self._pulse = Pulse.HIGH
         
         return bool(self.pulse)
+
+class BroadCaster(Module):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.state_map: dict[int, tuple[Pulse]] = {}
+        self.nodes: list[Module] = []
+        self.last_state = None
+    
+    @property
+    def state(self) -> int:
+        # return list((c.pulse for c in self.nodes))
+        return hash(tuple(c.pulse for c in self.nodes))
+    
+    @property
+    def repeat_hash(self) -> bool:
+        return self.last_state in self.state_map
+    
+    def set_state(self) -> None:
+        state = tuple(c.pulse for c in self.nodes)
+        state_hash = hash(state)
+        
+        if state_hash not in self.state_map:
+            self.state_map[hash(state)] = state
+            return None
+        return state_hash
+    
+    def update_state(self, hash: int) -> None:
+        state = self.state_map[hash]
+        for n, s in zip(self.nodes, state):
+            n._pulse = s
 
 puzzle_test = r"""
 broadcaster -> a, b, c
@@ -71,43 +102,48 @@ broadcaster -> a
 &con -> output
 """
 
-def press():
-    # queue: deque[tuple[Module, Module]] = deque([(c, broadcaster) for c in broadcaster.connections])
-    # low, high = len(broadcaster.connections) + 1, 0
-    # visited = set()
+def press(targets: list[Module]):
     queue: deque[Module] = deque([broadcaster])
-    low, high = 1, 0
+    report = []
 
     while queue:
         node = queue.popleft()
 
-        for c in node.connections:
-            if node.pulse == Pulse.LOW:
-                low += 1
-            else:
-                high += 1
+        if node in targets and node.pulse == Pulse.HIGH:
+            report.append(node)
 
+        for c in node.connections:
             if c.toggle(node) is None:
                 continue
 
             queue.append(c)
     
-    return low, high
+
+    return report
+
+def timeit(func):
+    def wrapper(*args, **kwargs):
+        import time
+        start = time.time()
+        res = func(*args, **kwargs)
+        end = time.time()
+        print(end - start)
+        return res
+    return wrapper
 
 if __name__ == '__main__':
     with open('day20/one/puzzle.txt') as f:
         puzzle = f.read().strip()
 
-    # puzzle = puzzle_test2.strip()
 
     broadcaster = None
-    nodes: dict[str, tuple[Module, list[str]]] = {}
+    nodes: dict[str, tuple[Module | FlipFlop | Conjunction, list[str]]] = {}
     for p in puzzle.split('\n'):
         node, connections = p.split(' -> ')
         connections = [c.strip() for c in connections.split(',')]
 
         if node == 'broadcaster':
-            broadcaster = Module(node)
+            broadcaster = BroadCaster(node)
             nodes[node] = (broadcaster, connections)
         elif node.startswith('%'):
             new_node = FlipFlop(node[1:])
@@ -118,18 +154,34 @@ if __name__ == '__main__':
 
     for k, v in nodes.items():
         node, connections = v
+        broadcaster.nodes.append(node)
 
         for c in connections:
-            output = nodes[c][0] if c in nodes else Module('output')
+            if c in nodes:
+                output = nodes[c][0]
+            else:
+                output = Module(c)
+                setattr(output, 'toggle', lambda *_: True)
             node.connections.append(output)
 
             if isinstance(output, Conjunction):
-                output.memory[node] = Pulse.LOW
+                output.memory.append(node)
     
-    lo, hi = 0, 0
-    for _ in range(1000):
-        l, h = press()
-        lo += l
-        hi += h
+    targets: list[Conjunction] = nodes['xn'][0].memory
 
-    print(lo * hi)
+    count = 0
+    cycles = []
+
+    while targets:
+        count += 1
+        report = press(targets)
+        for r in report:
+            cycles.append(count)
+            targets.remove(r)
+        
+        if not targets:
+            break
+    
+    print(math.lcm(*cycles))
+
+
