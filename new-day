@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    exit
+fi
+
+mkdir -p day$1/one
+touch day$1/one/main.py
