@@ -1,3 +1,4 @@
+import curses
 from typing import Any, Generator
 from dataclasses import dataclass, field
 
@@ -192,6 +193,44 @@ class Grid(list):
     def from_str(cls, grid: str, type_hint: Any = str, **kwargs) -> "Grid":
         grid: list[list[str]] = [list(map(type_hint, [*col])) for col in grid.strip().split("\n")]
         return cls(grid, **kwargs)
+
+def viz(func):
+    def wrapper(*args, **kwargs):
+        screen = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_GREEN)
+        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)
+        curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLUE)
+        curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_YELLOW)
+        curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_MAGENTA)
+        res = None
+        exc = None
+        try:
+            res = func(*args, **kwargs, screen=screen)
+        except Exception as e:
+            exc = e
+        finally:
+            screend = screen.getmaxyx()
+            curses.nocbreak()
+            curses.echo()
+            curses.endwin()
+            print(exc, screend)
+            
+        
+        return res
+    return wrapper
+
+def viz_grid(screen, node: Cell, grid: Grid):
+    for y, x, cell in grid.enum():
+        if cell == node:
+            screen.addstr(y, x, cell.value, curses.color_pair(1))
+        else:
+            screen.addstr(y, x, cell.value)
+    
+    screen.refresh()
+    screen.getch()
 
 # @dataclass
 # class LinkedCell:

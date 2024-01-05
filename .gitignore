@@ -8,3 +8,4 @@ dist/
 *.ans
 *.ipynb
 **/_main.py
+inputs/

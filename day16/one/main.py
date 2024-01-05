@@ -3,7 +3,7 @@ import os
 from collections import deque
 
 sys.path.append(os.path.expanduser('~/dev/aoc'))
-from grid.grid import Grid, Cell
+from utils.grid import Grid, Cell
 
 puzzle_test = r"""
 .|...\....

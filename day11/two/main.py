@@ -3,7 +3,7 @@ import sys
 from itertools import combinations
 
 sys.path.append(os.path.expanduser('~/dev/aoc'))
-from grid.grid import Grid
+from utils.grid import Grid
 
 puzzle_test1 = """\
 ...#......

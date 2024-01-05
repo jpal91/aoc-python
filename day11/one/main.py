@@ -9,7 +9,7 @@ from pprint import pprint
 
 
 sys.path.append(os.path.expanduser('~/dev/aoc'))
-from grid.grid import Grid, Cell
+from utils.grid import Grid, Cell
 
 class Galaxies(dict):
 
