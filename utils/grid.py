@@ -94,7 +94,7 @@ class Grid(list):
     def __str__(self):
         res = ""
         for i in range(self.rows):
-            res += "".join([cell.value for cell in self[i]]) + '\n'
+            res += " ".join([str(cell) for cell in self[i]]) + '\n'
         return res
 
     def __next__(self):
@@ -128,6 +128,10 @@ class Grid(list):
     @property
     def cols(self) -> int:
         return len(self[0])
+    
+    @property
+    def size(self) -> tuple[int, int]:
+        return (len(self), len(self[0]))
 
     @property
     def first_row(self) -> list[Cell]:
