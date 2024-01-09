@@ -41,7 +41,7 @@ class Edges(set):
         
         def __init__(self, nodes):
             super().__init__(sorted(nodes, key=lambda x: x.coords))
-            # self.val = sum([sum(e.coords) for e in self])
+
             y,x = 0, 0
             for n in self:
                 r, c = n.coords
@@ -52,6 +52,10 @@ class Edges(set):
             x = x // len(self)
 
             self.val = (y, x)
+            self.exits = []
+
+        def __repr__(self):
+            return f'Edge{self.val}'
         
         def __eq__(self, other):
             # return all([o in self for o in other])
@@ -71,21 +75,16 @@ class Edges(set):
 
         for k, v in graph.items():
             adj_nodes = (n[0] for n in v if n[1] == 2)
-            # exits.extend([(k, n) for n in v if n[1] != 2])
+            exits.extend([(k, n) for n in v if n[1] != 2])
             # self.add(tuple(sorted((k, *adj_nodes), key=lambda x: x.coords)))
             self.add(self.Edge((k, *adj_nodes)))
         
-        # for ent, ext in exits:
-        #     ent_node = self.get(ent)
-        #     ext_node = self.get(ext[0])
+        for ent, ext in exits:
+            ent_node = self.get(ent)
+            ext_node = self.get(ext[0])
+            ent_node.exits.append((ext_node, ext[1]))
     
-    def __eq__(self, other):
-        return tuple(self) == tuple(other)
-    
-    def __hash__(self):
-        return hash(tuple(sorted(self)))
 
-    # @lru_cache(None)
     def get(self, node: Cell):
         if node in self.edge_map:
             return self.edge_map[node]
@@ -95,16 +94,6 @@ class Edges(set):
                 return n
         return None
     
-    # def add(self, edge):
-    #     for n in edge:
-    #         self.edge_map[n] = edge
-    #     super().add(edge)
-    
-    # def remove(self, edge):
-    #     for n in edge:
-    #         del self.edge_map[n]
-        
-    #     super().remove(edge)
     
 
 
@@ -156,6 +145,29 @@ def longest_path(node: Cell, steps_taken: int, exiting: bool) -> int:
 
     return longest
 
+@lru_cache(10000)
+def longest_path2(edge: Edges.Edge, steps_taken: int, prev) -> int:
+
+    if edge == last:
+        return steps_taken - 2
+
+    if edge in path:
+        return 0
+
+    
+    path.add(edge)
+    longest = 0
+    for next_edge, steps in edge.exits:
+
+        res = longest_path2(next_edge, steps + steps_taken + 2, edge)
+
+        longest = max(longest, res)
+
+    path.remove(edge)
+
+
+    return longest
+
 
 
 if __name__ == '__main__':
@@ -185,16 +197,13 @@ if __name__ == '__main__':
     start = time.time()
     edges = Edges(graph)
 
+    memo = {}
     path = set()
     count = 0
     
+    first = edges.get(first)
+    last = edges.get(last)
 
-    
-    # res = longest_path(first, 0, True)
+    res = None #longest_path2(first, 0, None)
     end = time.time()
-    # print(res, count, end - start)
-    # print(longest_path.cache_info())
-
-
-
-    print(end - start)
+    print(res, end - start)
