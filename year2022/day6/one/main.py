@@ -31,6 +31,17 @@ def part1(input: str):
             return i + 4
         markers.add(let)
 
+def part2(input: str):
+    markers = Marker(input[0:14])
+
+    for i, let in enumerate(input[14:]):
+        # print(markers, len(markers.set), i + 14)
+        if len(markers.set) == 14:
+            return i + 14
+        markers.add(let)
+    
+    return i + 14
+
     
 
 test_puzzle = "mjqjpqmgbljsphdztnvjfqwrcgsmlb"
@@ -41,7 +52,7 @@ if __name__ == '__main__':
     import os
     with open(os.path.expanduser("~/dev/aoc/pyaoc/year2022/inputs/day6.txt")) as f:
         puzzle = f.read()
-    # puzzle = test_puzzle3
+    # puzzle = test_puzzle
 
-    res = part1(puzzle)
+    res = part2(puzzle)
     print(res)
