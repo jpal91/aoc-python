@@ -80,16 +80,13 @@ def part1(input: str) -> int:
     return active
 
 def part2(input: str) -> int:
-    monkeys = parse(input, False)
-    [print(k, m.items) for k, m in monkeys.items()]
-    for _ in range(10):
+    monkeys: dict[int, Monkey] = parse(input, False)
+    super_mod = math.prod([m.test_tf[0] for m in monkeys.values()])
+    
+    for _ in range(10000):
         for monkey in monkeys.values():
             for (new, val) in monkey:
-                # if val > 1000000:
-                #     val = val // 100000
-                monkeys[new].add(val)
-        [print(k, m.items) for k, m in monkeys.items()]
-        print('')
+                monkeys[new].add(val % super_mod)
         
     active = math.prod(sorted([m.inspections for m in monkeys.values()])[-2:])
 
@@ -130,7 +127,7 @@ Monkey 3:
 if __name__ == '__main__':
     with open('pyaoc/year2022/inputs/day11.txt') as f:
         puzzle = f.read()
-    puzzle = test_puzzle
+    # puzzle = test_puzzle
 
     res = part1(puzzle)
     print(res)
